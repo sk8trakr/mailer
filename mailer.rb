@@ -80,10 +80,34 @@ else
   dry = true
 end
 
+set_mails_path = './sent_mails.txt'
+sent_mails = File.exist?(set_mails_path) ? Set.new(File.readlines(set_mails_path).map(&:strip)) : Set.new
+sent_mails_file = File.open(set_mails_path, 'a')
 
+
+skipped = 0
+error = 0
+success = 0
 CSV.foreach(ARGV[0]) do |row|
-  receiver = parse_row(row)
-  sender = OpenStruct.new(senders.sample)
-  mailer = Mailer.new(sender, receiver, templates.sample, dry)
-  mailer.send!
+  begin
+    receiver = parse_row(row)
+    if sent_mails.include?(receiver.email)
+      puts "Skipping mail #{receiver.email}"
+      skipped += 1
+      next
+    end
+    sender = OpenStruct.new(senders.sample)
+    mailer = Mailer.new(sender, receiver, templates.sample, dry)
+    mailer.send!
+    sent_mails_file.puts(receiver.email)
+    success += 1
+  rescue
+    puts "Error sending email to #{receiver.email}"
+    error += 1
+  end
 end
+
+puts ""
+puts "Skipped emails #{skipped}"
+puts "Error emails #{error}"
+puts "Sucessfull emails #{success}"
