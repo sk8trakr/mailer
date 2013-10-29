@@ -101,6 +101,9 @@ CSV.foreach(ARGV[0]) do |row|
     mailer.send!
     sent_mails_file.puts(receiver.email)
     success += 1
+    time = rand(30..90)
+    puts "Sending next mail in #{time} seconds"
+    sleep(time)
   rescue
     puts "Error sending email to #{receiver.email}"
     error += 1
