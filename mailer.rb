@@ -73,9 +73,10 @@ class Mailer
   
 end
 
+readline
 if ENV['MAILER_DRY'] == 'false'
-  puts "Do you realy want to send real mails? Enter 'y' for yes"
-  dry = readline.strip.downcase == 'y'
+  puts "SENDING REAL EMAILS 5 seconds to cancel"
+  sleep(5)
 else
   dry = true
 end
@@ -88,7 +89,7 @@ sent_mails_file = File.open(set_mails_path, 'a')
 skipped = 0
 error = 0
 success = 0
-CSV.foreach(ARGV[0]) do |row|
+CSV.foreach(csv_file) do |row|
   begin
     receiver = parse_row(row)
     if sent_mails.include?(receiver.email)
